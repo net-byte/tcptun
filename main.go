@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	localAddr  = flag.String("l", ":1987", "Proxy local address")
-	serverAddr = flag.String("s", ":1080", "Proxy server address")
+	localAddr  = flag.String("l", ":1987", "Local address")
+	serverAddr = flag.String("s", ":1080", "Server address")
 	serverMode = flag.Bool("S", false, "Server mode")
 	key        = flag.String("k", "6da62287-979a-4eb4-a5ab-8b3d89da134b", "Encrypt key")
 )
@@ -18,13 +18,13 @@ var (
 func main() {
 	flag.Parse()
 
-	p := cmd.Server{
-		Addr:       *localAddr,
-		Target:     *serverAddr,
+	s := cmd.Server{
+		LocalAddr:  *localAddr,
+		ServerAddr: *serverAddr,
 		Key:        util.CreateHash(*key),
 		ServerMode: *serverMode,
 	}
 
-	log.Println("Proxying from " + p.Addr + " to " + p.Target)
-	p.Start()
+	log.Println("Proxying from " + s.LocalAddr + " to " + s.ServerAddr)
+	s.Start()
 }

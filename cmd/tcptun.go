@@ -10,10 +10,10 @@ import (
 // Server is a secure TCP proxy server
 type Server struct {
 	// TCP address of local server
-	Addr string
+	LocalAddr string
 
 	// TCP address of target server
-	Target string
+	ServerAddr string
 
 	// RequestCipher
 	RequestCipher func(b *[]byte, key []byte)
@@ -29,15 +29,13 @@ type Server struct {
 }
 
 func (s *Server) Start() {
-	ln, err := net.Listen("tcp", s.Addr)
+	ln, err := net.Listen("tcp", s.LocalAddr)
 	if err != nil {
 		return
 	}
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			log.Println("Accept error")
-			log.Println(err)
 			continue
 		}
 		go s.handleConn(conn)
@@ -45,7 +43,7 @@ func (s *Server) Start() {
 }
 
 func (s *Server) handleConn(conn net.Conn) {
-	rconn, err := net.DialTimeout("tcp", s.Target, 30*time.Second)
+	remoteConn, err := net.DialTimeout("tcp", s.ServerAddr, 30*time.Second)
 	if err != nil {
 		log.Println(err)
 		return
@@ -66,8 +64,8 @@ func (s *Server) handleConn(conn net.Conn) {
 			util.Decrypt(b, key)
 		}
 	}
-	go s.copy(conn, rconn, s.RequestCipher)
-	go s.copy(rconn, conn, s.ResponseCipher)
+	go s.copy(conn, remoteConn, s.RequestCipher)
+	go s.copy(remoteConn, conn, s.ResponseCipher)
 }
 
 func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte, key []byte)) {
