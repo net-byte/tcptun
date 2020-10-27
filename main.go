@@ -26,5 +26,5 @@ func main() {
 	}
 
 	log.Println("Proxying from " + p.Addr + " to " + p.Target)
-	p.ListenAndServe()
+	p.Start()
 }

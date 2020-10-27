@@ -1,4 +1,4 @@
-package cmd 
+package cmd
 
 import (
 	"log"
@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-// Server is a TCP server that takes an incoming request and sends it to another
+// Server is a secure TCP proxy server
 type Server struct {
-	// TCP address to listen on
+	// TCP address of local server
 	Addr string
 
 	// TCP address of target server
 	Target string
 
-	// RequestCipher is an optional function that changes the request from a client to the target server.
+	// RequestCipher
 	RequestCipher func(b *[]byte, key []byte)
 
-	// ResponseCipher is an optional function that changes the response from the target server.
+	// ResponseCipher
 	ResponseCipher func(b *[]byte, key []byte)
 
 	// Encrypt Key
@@ -28,7 +28,7 @@ type Server struct {
 	ServerMode bool
 }
 
-func (s *Server) ListenAndServe() {
+func (s *Server) Start() {
 	ln, err := net.Listen("tcp", s.Addr)
 	if err != nil {
 		return
@@ -45,7 +45,6 @@ func (s *Server) ListenAndServe() {
 }
 
 func (s *Server) handleConn(conn net.Conn) {
-	// connects to target server
 	rconn, err := net.DialTimeout("tcp", s.Target, 30*time.Second)
 	if err != nil {
 		log.Println(err)
@@ -71,7 +70,6 @@ func (s *Server) handleConn(conn net.Conn) {
 	go s.copy(rconn, conn, s.ResponseCipher)
 }
 
-// write to dst what it reads from src
 func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte, key []byte)) {
 	defer dst.Close()
 	defer src.Close()
