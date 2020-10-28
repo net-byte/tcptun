@@ -1,6 +1,8 @@
 # tcptun
 
-A simple secure tcp tunnel.
+A simple secure tcp tunnel.  
+
+[![Travis](https://travis-ci.com/net-byte/tcptun.svg?branch=master)](https://github.com/net-byte/tcptun)
 
 # Usage  
 
