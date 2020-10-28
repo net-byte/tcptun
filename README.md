@@ -4,7 +4,8 @@ A simple secure tcp tunnel.
 
 [![Travis](https://travis-ci.com/net-byte/tcptun.svg?branch=master)](https://github.com/net-byte/tcptun)
 [![Go Report Card](https://goreportcard.com/badge/github.com/net-byte/tcptun)](https://goreportcard.com/report/github.com/net-byte/tcptun)
-
+![image](https://img.shields.io/badge/License-MIT-orange)
+![image](https://img.shields.io/badge/License-Anti--996-red)
 # Usage  
 
 ```
