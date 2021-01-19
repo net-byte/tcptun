@@ -1,41 +1,28 @@
 package util
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
-	"crypto/md5"
-	"encoding/hex"
-	"log"
+	"crypto/sha256"
+
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
+var nonce = make([]byte, chacha20poly1305.NonceSizeX)
+
 func CreateHash(key string) []byte {
-	hasher := md5.New()
-	hasher.Write([]byte(key))
-	return []byte(hex.EncodeToString(hasher.Sum(nil)))
+	sha := sha256.Sum256([]byte(key))
+	ret := make([]byte, 32)
+	copy(sha[:32], ret[:32])
+	return ret
 }
 
 func Encrypt(data *[]byte, key []byte) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Println(err)
-	}
-	iv := key[:aes.BlockSize]
-	stream := cipher.NewCFBEncrypter(block, iv)
-	dest := make([]byte, len(*data))
-	stream.XORKeyStream(dest, *data)
-	data = nil
-	data = &dest
+	aead, _ := chacha20poly1305.NewX(key)
+	ciphertext := aead.Seal(nil, nonce, *data, nil)
+	data = &ciphertext
 }
 
 func Decrypt(data *[]byte, key []byte) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		log.Println(err)
-	}
-	iv := key[:aes.BlockSize]
-	stream := cipher.NewCFBDecrypter(block, iv)
-	dest := make([]byte, len(*data))
-	stream.XORKeyStream(dest, *data)
-	data = nil
-	data = &dest
+	aead, _ := chacha20poly1305.NewX(key)
+	plaintext, _ := aead.Open(nil, nonce, *data, nil)
+	data = &plaintext
 }
