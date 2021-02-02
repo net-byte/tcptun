@@ -17,4 +17,18 @@ Usage of ./tcptun:
   -s string
         Server address (default ":2001")
   -S Server mode
+```  
+# How it works?
+```
+mysql-client<--------->tcptun-client<------encryption--data------->tcptun-server<--------->mysql-server
+```
+
+# Run client
+```
+docker run -d --restart=always  --name tcptun-client -p 2000:2000 netbyte/tcptun -l=:2000 -s=server-ip:2001
+```
+
+# Run server
+```
+docker run  -d --restart=always  --net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=mysql-server-ip:3306
 ```
