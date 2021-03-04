@@ -3,8 +3,9 @@ package cmd
 import (
 	"log"
 	"net"
-	"tcptun/util"
 	"time"
+
+	"github.com/net-byte/tcptun/util"
 )
 
 // Server is a secure TCP proxy server
