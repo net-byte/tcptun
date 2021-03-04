@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"log"
-	"tcptun/util"
 
-	"tcptun/cmd"
+	"github.com/net-byte/tcptun/cmd"
+	"github.com/net-byte/tcptun/util"
 )
 
 var (
