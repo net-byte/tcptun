@@ -7,10 +7,6 @@ A simple secure tcp tunnel.
 ![image](https://img.shields.io/badge/License-MIT-orange)
 ![image](https://img.shields.io/badge/License-Anti--996-red)
 
-# How does it works?
-```
-mysql-client<--------->tcptun-client<------encryption--data------->tcptun-server<--------->mysql-server
-```
 
 # Usage  
 ## Cmd
