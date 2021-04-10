@@ -6,7 +6,14 @@ A simple secure tcp tunnel.
 [![Go Report Card](https://goreportcard.com/badge/github.com/net-byte/tcptun)](https://goreportcard.com/report/github.com/net-byte/tcptun)
 ![image](https://img.shields.io/badge/License-MIT-orange)
 ![image](https://img.shields.io/badge/License-Anti--996-red)
+
+# How does it works?
+```
+mysql-client<--------->tcptun-client<------encryption--data------->tcptun-server<--------->mysql-server
+```
+
 # Usage  
+## Cmd
 
 ```
 Usage of ./tcptun:  
@@ -18,17 +25,16 @@ Usage of ./tcptun:
         Server address (default ":2001")
   -S Server mode
 ```  
-# How it works?
+
+## Docker
+### Run client
 ```
-mysql-client<--------->tcptun-client<------encryption--data------->tcptun-server<--------->mysql-server
+docker run -d --restart=always  \ 
+--name tcptun-client -p 2000:2000 netbyte/tcptun -l=:2000 -s=server-ip:2001
 ```
 
-# Run client
+### Run server
 ```
-docker run -d --restart=always  --name tcptun-client -p 2000:2000 netbyte/tcptun -l=:2000 -s=server-ip:2001
-```
-
-# Run server
-```
-docker run  -d --restart=always  --net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=mysql-server-ip:3306
+docker run  -d --restart=always  \
+--net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=mysql-server-ip:3306
 ```

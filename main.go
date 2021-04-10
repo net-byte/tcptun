@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/net-byte/tcptun/cmd"
-	"github.com/net-byte/tcptun/util"
+	"github.com/net-byte/tcptun/common/cipher"
 )
 
 var (
@@ -21,8 +21,8 @@ func main() {
 	s := cmd.Server{
 		LocalAddr:  *localAddr,
 		ServerAddr: *serverAddr,
-		Key:        util.CreateHash(*key),
 		ServerMode: *serverMode,
+		Key:        cipher.CreateHash(*key),
 	}
 
 	log.Println("Proxying from " + s.LocalAddr + " to " + s.ServerAddr)
