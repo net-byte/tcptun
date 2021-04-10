@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/net-byte/tcptun/util"
+	"github.com/net-byte/tcptun/common/cipher"
 )
 
 // Server is a secure TCP proxy server
@@ -52,17 +52,17 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	if s.ServerMode {
 		s.RequestCipher = func(b *[]byte, key []byte) {
-			util.Decrypt(b, key)
+			cipher.Decrypt(b, key)
 		}
 		s.ResponseCipher = func(b *[]byte, key []byte) {
-			util.Encrypt(b, key)
+			cipher.Encrypt(b, key)
 		}
 	} else {
 		s.RequestCipher = func(b *[]byte, key []byte) {
-			util.Encrypt(b, key)
+			cipher.Encrypt(b, key)
 		}
 		s.ResponseCipher = func(b *[]byte, key []byte) {
-			util.Decrypt(b, key)
+			cipher.Decrypt(b, key)
 		}
 	}
 	go s.copy(conn, remoteConn, s.RequestCipher)
@@ -77,7 +77,7 @@ func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte, key []byte)) {
 	for {
 		n, err := src.Read(buff)
 		if n == 0 || err != nil {
-			return
+			break
 		}
 
 		b := buff[:n]
@@ -87,7 +87,7 @@ func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte, key []byte)) {
 
 		_, err = dst.Write(b)
 		if err != nil {
-			return
+			break
 		}
 	}
 }
