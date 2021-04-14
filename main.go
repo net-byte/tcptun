@@ -5,14 +5,13 @@ import (
 	"log"
 
 	"github.com/net-byte/tcptun/cmd"
-	"github.com/net-byte/tcptun/common/cipher"
 )
 
 var (
-	localAddr  = flag.String("l", ":2000", "Local address")
-	serverAddr = flag.String("s", ":2001", "Server address")
-	serverMode = flag.Bool("S", false, "Server mode")
-	key        = flag.String("k", "6da62287-979a-4eb4-a5ab-8b3d89da134b", "Encrypt key")
+	localAddr  = flag.String("l", ":2000", "local address")
+	serverAddr = flag.String("s", ":2001", "server address")
+	serverMode = flag.Bool("S", false, "server mode")
+	key        = flag.String("k", "3tG*Cy%Zt6GWZV8W", "encryption key")
 )
 
 func main() {
@@ -22,7 +21,7 @@ func main() {
 		LocalAddr:  *localAddr,
 		ServerAddr: *serverAddr,
 		ServerMode: *serverMode,
-		Key:        cipher.CreateHash(*key),
+		Key:        *key,
 	}
 
 	log.Println("Proxying from " + s.LocalAddr + " to " + s.ServerAddr)

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io"
 	"log"
 	"net"
 	"time"
@@ -17,21 +18,23 @@ type Server struct {
 	ServerAddr string
 
 	// RequestCipher
-	RequestCipher func(b *[]byte, key []byte)
+	RequestCipher func(b *[]byte)
 
 	// ResponseCipher
-	ResponseCipher func(b *[]byte, key []byte)
+	ResponseCipher func(b *[]byte)
 
-	// Encrypt Key
-	Key []byte
+	// Encryption Key
+	Key string
 
 	// Server mode
 	ServerMode bool
 }
 
 func (s *Server) Start() {
+	cipher.GenerateKey(s.Key)
 	ln, err := net.Listen("tcp", s.LocalAddr)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	for {
@@ -51,38 +54,38 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 
 	if s.ServerMode {
-		s.RequestCipher = func(b *[]byte, key []byte) {
-			cipher.Decrypt(b, key)
+		s.RequestCipher = func(b *[]byte) {
+			cipher.Decrypt(b)
 		}
-		s.ResponseCipher = func(b *[]byte, key []byte) {
-			cipher.Encrypt(b, key)
+		s.ResponseCipher = func(b *[]byte) {
+			cipher.Encrypt(b)
 		}
 	} else {
-		s.RequestCipher = func(b *[]byte, key []byte) {
-			cipher.Encrypt(b, key)
+		s.RequestCipher = func(b *[]byte) {
+			cipher.Encrypt(b)
 		}
-		s.ResponseCipher = func(b *[]byte, key []byte) {
-			cipher.Decrypt(b, key)
+		s.ResponseCipher = func(b *[]byte) {
+			cipher.Decrypt(b)
 		}
 	}
 	go s.copy(conn, remoteConn, s.RequestCipher)
 	go s.copy(remoteConn, conn, s.ResponseCipher)
 }
 
-func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte, key []byte)) {
+func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte)) {
 	defer dst.Close()
 	defer src.Close()
 
-	buff := make([]byte, 32768)
+	buff := make([]byte, 4096)
 	for {
 		n, err := src.Read(buff)
-		if n == 0 || err != nil {
+		if err != nil || err == io.EOF {
 			break
 		}
 
 		b := buff[:n]
 		if cipher != nil {
-			cipher(&b, s.Key)
+			cipher(&b)
 		}
 
 		_, err = dst.Write(b)
