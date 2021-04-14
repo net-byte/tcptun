@@ -13,13 +13,13 @@ A simple secure tcp tunnel.
 
 ```
 Usage of ./tcptun:  
+  -S    server mode
   -k string
-        Encrypt key (default "6da62287-979a-4eb4-a5ab-8b3d89da134b")
+        encryption key (default "3tG*Cy%Zt6GWZV8W")
   -l string
-        Local address (default ":2000")
+        local address (default ":2000")
   -s string
-        Server address (default ":2001")
-  -S Server mode
+        server address (default ":2001")
 ```  
 
 ## Docker
@@ -32,5 +32,5 @@ docker run -d --restart=always  \
 ### Run server
 ```
 docker run  -d --restart=always  \
---net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=mysql-server-ip:3306
+--net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=:1080
 ```
