@@ -18,10 +18,10 @@ type Server struct {
 	ServerAddr string
 
 	// RequestCipher
-	RequestCipher func(b *[]byte)
+	RequestCipher func(b []byte) []byte
 
 	// ResponseCipher
-	ResponseCipher func(b *[]byte)
+	ResponseCipher func(b []byte) []byte
 
 	// Encryption Key
 	Key string
@@ -54,25 +54,25 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 
 	if s.ServerMode {
-		s.RequestCipher = func(b *[]byte) {
-			cipher.Decrypt(b)
+		s.RequestCipher = func(b []byte) []byte {
+			return cipher.Decrypt(b)
 		}
-		s.ResponseCipher = func(b *[]byte) {
-			cipher.Encrypt(b)
+		s.ResponseCipher = func(b []byte) []byte {
+			return cipher.Encrypt(b)
 		}
 	} else {
-		s.RequestCipher = func(b *[]byte) {
-			cipher.Encrypt(b)
+		s.RequestCipher = func(b []byte) []byte {
+			return cipher.Encrypt(b)
 		}
-		s.ResponseCipher = func(b *[]byte) {
-			cipher.Decrypt(b)
+		s.ResponseCipher = func(b []byte) []byte {
+			return cipher.Decrypt(b)
 		}
 	}
 	go s.copy(conn, remoteConn, s.RequestCipher)
 	go s.copy(remoteConn, conn, s.ResponseCipher)
 }
 
-func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte)) {
+func (s *Server) copy(src, dst net.Conn, cipher func(b []byte) []byte) {
 	defer dst.Close()
 	defer src.Close()
 
@@ -85,7 +85,7 @@ func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte)) {
 
 		b := buff[:n]
 		if cipher != nil {
-			cipher(&b)
+			b = cipher(b)
 		}
 
 		_, err = dst.Write(b)
