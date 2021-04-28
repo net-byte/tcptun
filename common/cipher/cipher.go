@@ -17,14 +17,14 @@ func GenerateKey(key string) {
 	hashKey = buff
 }
 
-func Encrypt(data *[]byte) {
+func Encrypt(data []byte) []byte {
 	aead, _ := chacha20poly1305.NewX(hashKey)
-	ciphertext := aead.Seal(nil, nonce, *data, nil)
-	data = &ciphertext
+	ciphertext := aead.Seal(nil, nonce, data, nil)
+	return ciphertext
 }
 
-func Decrypt(data *[]byte) {
+func Decrypt(data []byte) []byte {
 	aead, _ := chacha20poly1305.NewX(hashKey)
-	plaintext, _ := aead.Open(nil, nonce, *data, nil)
-	data = &plaintext
+	plaintext, _ := aead.Open(nil, nonce, data, nil)
+	return plaintext
 }
