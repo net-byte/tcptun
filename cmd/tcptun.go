@@ -58,10 +58,9 @@ func (s *Server) copy(src, dst net.Conn) {
 		if err != nil || err == io.EOF {
 			break
 		}
-
 		b := buff[:n]
-
-		_, err = dst.Write(xor(b, s.Key))
+		b = xor(b, s.Key)
+		_, err = dst.Write(b)
 		if err != nil {
 			break
 		}
