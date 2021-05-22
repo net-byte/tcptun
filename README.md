@@ -31,5 +31,5 @@ docker run -d --restart=always  \
 ### Run server
 ```
 docker run  -d --restart=always  \
---net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -S -l=:2001 -s=:1080
+--net=host --name tcptun-server -p 2001:2001 netbyte/tcptun -l=:2001 -s=:1080
 ```
