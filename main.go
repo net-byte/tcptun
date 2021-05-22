@@ -21,7 +21,7 @@ func main() {
 		LocalAddr:  *localAddr,
 		ServerAddr: *serverAddr,
 		ServerMode: *serverMode,
-		Key:        *key,
+		Key:        []byte(*key),
 	}
 
 	log.Println("Proxying from " + s.LocalAddr + " to " + s.ServerAddr)

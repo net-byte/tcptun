@@ -1,12 +1,11 @@
 package cmd
 
 import (
+	"crypto/rc4"
 	"io"
 	"log"
 	"net"
 	"time"
-
-	"github.com/net-byte/tcptun/common/cipher"
 )
 
 // Server is a secure TCP proxy server
@@ -17,21 +16,14 @@ type Server struct {
 	// TCP address of target server
 	ServerAddr string
 
-	// RequestCipher
-	RequestCipher func(b *[]byte)
-
-	// ResponseCipher
-	ResponseCipher func(b *[]byte)
-
 	// Encryption Key
-	Key string
+	Key []byte
 
 	// Server mode
 	ServerMode bool
 }
 
 func (s *Server) Start() {
-	cipher.GenerateKey(s.Key)
 	ln, err := net.Listen("tcp", s.LocalAddr)
 	if err != nil {
 		log.Println(err)
@@ -53,29 +45,13 @@ func (s *Server) handleConn(conn net.Conn) {
 		return
 	}
 
-	if s.ServerMode {
-		s.RequestCipher = func(b *[]byte) {
-			cipher.Decrypt(b)
-		}
-		s.ResponseCipher = func(b *[]byte) {
-			cipher.Encrypt(b)
-		}
-	} else {
-		s.RequestCipher = func(b *[]byte) {
-			cipher.Encrypt(b)
-		}
-		s.ResponseCipher = func(b *[]byte) {
-			cipher.Decrypt(b)
-		}
-	}
-	go s.copy(conn, remoteConn, s.RequestCipher)
-	go s.copy(remoteConn, conn, s.ResponseCipher)
+	go s.copy(conn, remoteConn)
+	go s.copy(remoteConn, conn)
 }
 
-func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte)) {
+func (s *Server) copy(src, dst net.Conn) {
 	defer dst.Close()
 	defer src.Close()
-
 	buff := make([]byte, 4096)
 	for {
 		n, err := src.Read(buff)
@@ -84,13 +60,21 @@ func (s *Server) copy(src, dst net.Conn, cipher func(b *[]byte)) {
 		}
 
 		b := buff[:n]
-		if cipher != nil {
-			cipher(&b)
-		}
+		b = xor(b, s.Key)
 
 		_, err = dst.Write(b)
 		if err != nil {
 			break
 		}
 	}
+}
+
+func xor(data []byte, key []byte) []byte {
+	c, err := rc4.NewCipher(key)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	dst := make([]byte, len(data))
+	c.XORKeyStream(dst, data)
+	return dst
 }
