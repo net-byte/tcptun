@@ -10,7 +10,6 @@ import (
 var (
 	localAddr  = flag.String("l", ":2000", "local address")
 	serverAddr = flag.String("s", ":2001", "server address")
-	serverMode = flag.Bool("S", false, "server mode")
 	key        = flag.String("k", "NcRfWjXn3r4u7x", "encryption key")
 )
 
@@ -20,7 +19,6 @@ func main() {
 	s := cmd.Server{
 		LocalAddr:  *localAddr,
 		ServerAddr: *serverAddr,
-		ServerMode: *serverMode,
 		Key:        []byte(*key),
 	}
 
