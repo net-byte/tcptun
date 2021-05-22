@@ -13,7 +13,6 @@ A simple secure tcp tunnel.
 
 ```
 Usage of ./tcptun:  
-  -S    server mode
   -k string
         encryption key (default "123456")
   -l string

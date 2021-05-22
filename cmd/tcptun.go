@@ -18,9 +18,6 @@ type Server struct {
 
 	// Encryption Key
 	Key []byte
-
-	// Server mode
-	ServerMode bool
 }
 
 func (s *Server) Start() {
@@ -52,27 +49,21 @@ func (s *Server) handleConn(conn net.Conn) {
 func (s *Server) copy(src, dst net.Conn) {
 	defer dst.Close()
 	defer src.Close()
-	buff := make([]byte, 0xffff)
+	c, err := rc4.NewCipher(s.Key)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	buff := make([]byte, 4096)
 	for {
 		n, err := src.Read(buff)
 		if err != nil || err == io.EOF {
 			break
 		}
 		b := buff[:n]
-		b = xor(b, s.Key)
+		c.XORKeyStream(b, b)
 		_, err = dst.Write(b)
 		if err != nil {
 			break
 		}
 	}
-}
-
-func xor(data []byte, key []byte) []byte {
-	c, err := rc4.NewCipher(key)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	dst := make([]byte, len(data))
-	c.XORKeyStream(dst, data)
-	return dst
 }
