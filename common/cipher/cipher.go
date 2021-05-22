@@ -6,25 +6,25 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-var nonce = make([]byte, chacha20poly1305.NonceSizeX)
+var _nonce = make([]byte, chacha20poly1305.NonceSizeX)
 
-var hashKey = []byte("8pUsXuZw4z6B9EbGdKgNjQnjqVsYv2x5")
+var _key = []byte("8pUsXuZw4z6B9EbGdKgNjQnjqVsYv2x5")
 
 func GenerateKey(key string) {
 	sha := sha256.Sum256([]byte(key))
 	buff := make([]byte, 32)
 	copy(sha[:32], buff[:32])
-	hashKey = buff
+	_key = buff
 }
 
-func Encrypt(data []byte) []byte {
-	aead, _ := chacha20poly1305.NewX(hashKey)
-	ciphertext := aead.Seal(nil, nonce, data, nil)
-	return ciphertext
+func Encrypt(data *[]byte) {
+	aead, _ := chacha20poly1305.NewX(_key)
+	ciphertext := aead.Seal(nil, _nonce, *data, nil)
+	data = &ciphertext
 }
 
-func Decrypt(data []byte) []byte {
-	aead, _ := chacha20poly1305.NewX(hashKey)
-	plaintext, _ := aead.Open(nil, nonce, data, nil)
-	return plaintext
+func Decrypt(data *[]byte) {
+	aead, _ := chacha20poly1305.NewX(_key)
+	plaintext, _ := aead.Open(nil, _nonce, *data, nil)
+	data = &plaintext
 }
