@@ -11,7 +11,7 @@ var (
 	localAddr  = flag.String("l", ":2000", "local address")
 	serverAddr = flag.String("s", ":2001", "server address")
 	serverMode = flag.Bool("S", false, "server mode")
-	key        = flag.String("k", "3tG*Cy%Zt6GWZV8W", "encryption key")
+	key        = flag.String("k", "NcRfWjXn3r4u7x", "encryption key")
 )
 
 func main() {

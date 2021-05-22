@@ -52,7 +52,7 @@ func (s *Server) handleConn(conn net.Conn) {
 func (s *Server) copy(src, dst net.Conn) {
 	defer dst.Close()
 	defer src.Close()
-	buff := make([]byte, 4096)
+	buff := make([]byte, 0xffff)
 	for {
 		n, err := src.Read(buff)
 		if err != nil || err == io.EOF {
@@ -60,9 +60,8 @@ func (s *Server) copy(src, dst net.Conn) {
 		}
 
 		b := buff[:n]
-		b = xor(b, s.Key)
 
-		_, err = dst.Write(b)
+		_, err = dst.Write(xor(b, s.Key))
 		if err != nil {
 			break
 		}

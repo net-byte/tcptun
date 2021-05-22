@@ -15,7 +15,7 @@ A simple secure tcp tunnel.
 Usage of ./tcptun:  
   -S    server mode
   -k string
-        encryption key (default "3tG*Cy%Zt6GWZV8W")
+        encryption key (default "123456")
   -l string
         local address (default ":2000")
   -s string
