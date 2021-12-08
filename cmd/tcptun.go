@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"crypto/rc4"
+	"crypto/tls"
 	"io"
 	"log"
 	"net"
@@ -18,6 +19,9 @@ type Server struct {
 
 	// Encryption Key
 	Key []byte
+
+	// TCP to TLS mode (default TCP to TCP)
+	TLS bool
 }
 
 func (s *Server) Start() {
@@ -36,22 +40,34 @@ func (s *Server) Start() {
 }
 
 func (s *Server) handleConn(conn net.Conn) {
-	remoteConn, err := net.DialTimeout("tcp", s.ServerAddr, 30*time.Second)
+	var remoteConn net.Conn
+	var err error
+	if s.TLS {
+		conf := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		remoteConn, err = tls.Dial("tcp", s.ServerAddr, conf)
+	} else {
+		remoteConn, err = net.DialTimeout("tcp", s.ServerAddr, 30*time.Second)
+	}
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	go s.copy(conn, remoteConn)
 	go s.copy(remoteConn, conn)
+	s.copy(conn, remoteConn)
 }
 
 func (s *Server) copy(src, dst net.Conn) {
 	defer dst.Close()
 	defer src.Close()
-	c, err := rc4.NewCipher(s.Key)
-	if err != nil {
-		log.Fatalln(err)
+	var cipher *rc4.Cipher
+	var err error
+	if !s.TLS && len(s.Key) > 0 {
+		cipher, err = rc4.NewCipher(s.Key)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	}
 	buff := make([]byte, 4096)
 	for {
@@ -60,7 +76,9 @@ func (s *Server) copy(src, dst net.Conn) {
 			break
 		}
 		b := buff[:n]
-		c.XORKeyStream(b, b)
+		if cipher != nil {
+			cipher.XORKeyStream(b, b)
+		}
 		_, err = dst.Write(b)
 		if err != nil {
 			break
