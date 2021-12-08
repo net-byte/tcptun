@@ -1,6 +1,4 @@
 #!bin/bash
-
-export GO111MODULE=on
 #Linux
 GOOS=linux GOARCH=amd64 go build -o ./bin/tcptun-linux-amd64 ./main.go
 #Linux arm
